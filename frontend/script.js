@@ -150,3 +150,58 @@ document.getElementById("updateButton").addEventListener("click", () => {
       alert("Server error.");
     });
 });
+
+document.getElementById("initializeButton").addEventListener("click", () => {
+  const boyCount = parseInt(document.getElementById("boyCount").value);
+  const teacherCount = parseInt(document.getElementById("teacherCount").value);
+
+  if (isNaN(boyCount) || isNaN(teacherCount) || boyCount <= 0 || teacherCount <= 0) {
+    alert("Please enter valid numbers.");
+    return;
+  }
+
+  // Step 1: Build empty student data
+  const students = [];
+  for (let i = 0; i < boyCount; i++) {
+    students.push({
+      id: String(i + 1).padStart(3, "0"),
+      industry: [],        // no teacher entries yet
+      citizenship: [],     // no teacher entries yet
+    });
+  }
+
+  // Step 2: Build object with zero totals
+  const data = {
+    totals: {
+      house: 0,
+      industry: 0,
+      citizenship: 0
+    },
+    students
+  };
+
+  // Step 3: Encode it
+  const encoded = encodePointsData(data);
+
+  // Step 4: Upload it to backend
+  fetch("https://your-render-app.onrender.com/update", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ encoded }),
+  })
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        alert("System initialized successfully!");
+      } else {
+        alert("Failed to initialize.");
+      }
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      alert("Server error.");
+    });
+});
+
