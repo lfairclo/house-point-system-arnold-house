@@ -1,4 +1,4 @@
-const socket = io('https://house-point-system-arnold-house.onrender.com'); // replace with your backend URL
+const socket = io('https://house-point-system-arnold-house.onrender.com/data'); // replace with your backend URL
 const valueSpan = document.getElementById('value');
 
 socket.on('update', (newValue) => {
@@ -6,7 +6,7 @@ socket.on('update', (newValue) => {
 });
 
 function updateSharedString(newValue) {
-  fetch('https://house-point-system-arnold-house.onrender.com', {
+  fetch('https://house-point-system-arnold-house.onrender.com/data', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ function updateSharedString(newValue) {
 }
 
 function getSharedString() {
-  fetch('https://house-point-system-arnold-house.onrender.com')
+  fetch('https://house-point-system-arnold-house.onrender.com/data')
     .then(response => response.json())
     .then(data => {
       console.log('Retrieved shared string:', data.encoded);
