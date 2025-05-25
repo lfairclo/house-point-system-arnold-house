@@ -184,7 +184,7 @@ document.getElementById("initializeButton").addEventListener("click", () => {
   const encoded = encodePointsData(data);
 
   // Step 4: Upload it to backend
-  fetch("https://your-render-app.onrender.com/update", {
+  fetch("https://house-point-system-arnold-house.onrender.com", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
