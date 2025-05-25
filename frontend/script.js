@@ -6,9 +6,7 @@ socket.on('update', (newValue) => {
   document.getElementById('value').textContent = newValue;
 });
 
-window.addEventListener('DOMContentLoaded', () => {
-  getSharedString();
-});
+
 
 function updateSharedString(newValue) {
   console.log("Sending update to server:", newValue);
@@ -26,11 +24,10 @@ function updateSharedString(newValue) {
 
 
 function getSharedString() {
-  fetch('https://house-point-system-arnold-house.onrender.com')
+  fetch('https://house-point-system-arnold-house.onrender.com/data')
     .then(response => response.json())
     .then(data => {
       console.log('Retrieved shared string:', data.encoded);
-      // For example, display it in the HTML
       document.getElementById('value').textContent = data.encoded;
     })
     .catch(error => {
@@ -47,3 +44,7 @@ document.getElementById("createnewint").addEventListener("click", () => {
 
   updateSharedString(tempint);
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  getSharedString();
+});
