@@ -2,7 +2,7 @@ const socket = io('https://house-point-system-arnold-house.onrender.com'); // re
 const valueSpan = document.getElementById('value');
 
 socket.on('update', (newValue) => {
-  valueSpan.textContent = newValue;
+  getSharedString();
 });
 
 function updateSharedString(newValue) {
