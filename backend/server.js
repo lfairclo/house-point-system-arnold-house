@@ -7,16 +7,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const DATA_FILE = path.join(__dirname, "data.json");
+const DATA_FILE = path.join("/tmp", "data.json");
 
 function readData() {
   try {
+    if (!fs.existsSync(DATA_FILE)) {
+      fs.writeFileSync(DATA_FILE, JSON.stringify({ encoded: "" }, null, 2));
+    }
     const data = fs.readFileSync(DATA_FILE);
     return JSON.parse(data);
   } catch (err) {
+    console.error("Error reading data file:", err);
     return { encoded: "" };
   }
 }
+
 
 function writeData(newData) {
   fs.writeFileSync(DATA_FILE, JSON.stringify(newData, null, 2));
