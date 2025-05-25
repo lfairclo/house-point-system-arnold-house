@@ -5,6 +5,8 @@ socket.on('update', (newValue) => {
   valueSpan.textContent = newValue;
 });
 
-function create(boys, techers) {
+function create() {
+  const boyCount = parseInt(document.getElementById("boyCount").value);
+  const teacherCount = parseInt(document.getElementById("teacherCount").value);
   
 }
