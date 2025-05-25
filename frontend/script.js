@@ -2,30 +2,28 @@ const socket = io('https://house-point-system-arnold-house.onrender.com'); // âœ
 const valueSpan = document.getElementById('value');
 
 socket.on('update', (newValue) => {
+  console.log('Socket update received:', newValue);
+  document.getElementById('value').textContent = newValue;
+});
+
+window.addEventListener('DOMContentLoaded', () => {
   getSharedString();
 });
 
 function updateSharedString(newValue) {
-  fetch('https://house-point-system-arnold-house.onrender.com', {
+  console.log("Sending update to server:", newValue);
+  fetch('https://house-point-system-arnold-house.onrender.com/data', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ encoded: newValue }),
   })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Failed to update shared string');
-    }
-    return response.json();
-  })
+  .then(res => res.json())
   .then(data => {
-    console.log('Shared string updated successfully:', data);
+    console.log("Server acknowledged update:", data);
   })
-  .catch(error => {
-    console.error('Error updating shared string:', error);
-  });
+  .catch(err => console.error("Update failed:", err));
 }
+
 
 function getSharedString() {
   fetch('https://house-point-system-arnold-house.onrender.com')
