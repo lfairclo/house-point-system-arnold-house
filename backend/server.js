@@ -1,50 +1,35 @@
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
-const cors = require("cors");
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+const cors = require('cors');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
-
-const DATA_FILE = path.join("/tmp", "data.json");
-
-function readData() {
-  try {
-    if (!fs.existsSync(DATA_FILE)) {
-      fs.writeFileSync(DATA_FILE, JSON.stringify({ encoded: "" }, null, 2));
-    }
-    const data = fs.readFileSync(DATA_FILE);
-    return JSON.parse(data);
-  } catch (err) {
-    console.error("Error reading data file:", err);
-    return { encoded: "" };
-  }
-}
-
-
-function writeData(newData) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(newData, null, 2));
-}
-
-// GET current encoded string
-app.get("/data", (req, res) => {
-  const data = readData();
-  res.json(data);
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: '*',
+    },
 });
 
-// POST to update the encoded string
-app.post("/update", (req, res) => {
-  const { encoded } = req.body;
-  if (typeof encoded !== "string") {
-    return res.status(400).json({ error: "Invalid data format" });
-  }
+app.use(cors());
 
-  writeData({ encoded });
-  res.json({ success: true });
+let sharedInt = 0;
+
+io.on('connection', (socket) => {
+    socket.emit('update', sharedInt);
+
+    socket.on('increment', () => {
+        sharedInt++;
+        io.emit('update', sharedInt);
+    });
+
+    socket.on('decrement', () => {
+        sharedInt--;
+        io.emit('update', sharedInt);
+    });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
 });
