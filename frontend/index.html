@@ -2,27 +2,12 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>House point system</title>
+  <title>Shared Integer</title>
 </head>
 <body>
   <h1>Shared Number: <span id="value">0</span></h1>
   <button onclick="socket.emit('increment')">+1</button>
   <button onclick="socket.emit('decrement')">-1</button>
-  <button id="updateButton">Update Server Data</button>
-  <h2>Initialize Point System</h2>
-
-  <label for="boyCount">Number of Boys:</label>
-  <input type="number" id="boyCount" min="1" value="86">
-  
-  <br>
-  
-  <label for="teacherCount">Number of Teachers:</label>
-  <input type="number" id="teacherCount" min="1" value="17">
-  
-  <br><br>
-  
-  <button id="initializeButton">Generate + Upload New Points Data</button>
-
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script src="script.js"></script>
