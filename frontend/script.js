@@ -5,8 +5,11 @@ socket.on('update', (newValue) => {
   valueSpan.textContent = newValue;
 });
 
-function create() {
+document.getElementById("createnewint").addEventListener("click", () => {
   const boyCount = parseInt(document.getElementById("boyCount").value);
   const teacherCount = parseInt(document.getElementById("teacherCount").value);
-  
+
+  let tempint = 101010;
+
+  valueSpan = tempint;
 }
