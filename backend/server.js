@@ -13,7 +13,7 @@ const io = socketIo(server, {
 
 app.use(cors());
 
-let sharedInt = 0;
+let sharedInt = 10101011110011001;
 
 io.on('connection', (socket) => {
     socket.emit('update', sharedInt);
