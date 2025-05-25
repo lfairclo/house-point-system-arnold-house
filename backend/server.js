@@ -4,7 +4,14 @@ const socketIo = require('socket.io');
 const cors = require('cors');
 
 const app = express();
-@@ -15,19 +14,6 @@ app.use(cors());
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: '*',
+    },
+});
+
+app.use(cors());
 
 let sharedInt = 0;
 
@@ -24,3 +31,5 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+});
