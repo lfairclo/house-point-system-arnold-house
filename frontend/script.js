@@ -123,7 +123,7 @@ document.getElementById("updateButton").addEventListener("click", () => {
         id: "002",
         industry: ["005", "006"],
         citizenship: ["102"],
-      },
+      }
       // ... up to 086
     ],
   };
