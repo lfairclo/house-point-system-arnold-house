@@ -27,6 +27,20 @@ function updateSharedString(newValue) {
   });
 }
 
+function getSharedString() {
+  fetch('https://house-point-system-arnold-house.onrender.com')
+    .then(response => response.json())
+    .then(data => {
+      console.log('Retrieved shared string:', data.encoded);
+      // For example, display it in the HTML
+      document.getElementById('value').textContent = data.encoded;
+    })
+    .catch(error => {
+      console.error('Error retrieving shared string:', error);
+    });
+}
+
+
 document.getElementById("createnewint").addEventListener("click", () => {
   const boyCount = parseInt(document.getElementById("boyCount").value);
   const teacherCount = parseInt(document.getElementById("teacherCount").value);
