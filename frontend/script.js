@@ -43,7 +43,7 @@ document.getElementById("createnewint").addEventListener("click", () => {
   let tempint = 101010;
 
   updateSharedString(tempint);
-}
+}); // ✅ Fully closed with ); now
 
 window.addEventListener('DOMContentLoaded', () => {
   getSharedString();
