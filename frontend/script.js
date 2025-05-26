@@ -36,7 +36,7 @@ function getSharedString() {
 }
 
 
-document.getElementById("createnewint").addEventListener("click", () => {
+document.getElementById('createnewint').addEventListener("click", () => {
   const boyCount = parseInt(document.getElementById("boyCount").value);
   const teacherCount = parseInt(document.getElementById("teacherCount").value);
 
