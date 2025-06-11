@@ -51,7 +51,7 @@
     const sampleArray = [10, 20, 30, 40, 50];
 
     saveBtn.onclick = () => {
-      set(ref(db, 'arrays/myArray'), sampleArray)
+      set(ref(db, 'arrays/nelson'), sampleArray)
         .then(() => {
           display.innerText = 'Array saved to Firebase!';
         })
@@ -61,7 +61,7 @@
     };
 
     loadBtn.onclick = () => {
-      get(ref(db, 'arrays/myArray'))
+      get(ref(db, 'arrays/nelson'))
         .then((snapshot) => {
           if (snapshot.exists()) {
             const data = snapshot.val();
