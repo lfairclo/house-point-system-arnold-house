@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>House point compiler</title></title>
+  <title>House Points Viewer</title>
   <style>
     body {
       font-family: sans-serif;
@@ -14,25 +14,24 @@
       padding: 0.5rem 1rem;
       font-size: 1rem;
     }
-    #output {
+    table {
       margin-top: 1rem;
-      white-space: pre-wrap;
-      background: #fff;
-      padding: 1rem;
+      background: white;
       border: 1px solid #ccc;
-      border-radius: 8px;
+    }
+    th {
+      background: #eee;
+    }
+    td, th {
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <h1>Sports Day House Points</h1>
+  <h1>House Points Viewer</h1>
+  <button id="loadBtn">Load Data</button>
+  <div id="output">Press "Load Data" to see results...</div>
 
-  <button id="saveBtn">Save Sample Array</button>
-  <button id="loadBtn">Load & Parse Array</button>
-
-  <div id="output">Output will appear here...</div>
-
-  <!-- Firebase + Script -->
   <script type="module" src="scripts.js"></script>
 </body>
 </html>
