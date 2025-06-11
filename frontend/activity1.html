@@ -33,63 +33,70 @@
   <p id="status"></p>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
-      authDomain: "house-point-system-lfairclo.firebaseapp.com",
-      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
-      projectId: "house-point-system-lfairclo",
-      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
-      messagingSenderId: "941089391114",
-      appId: "1:941089391114:web:028c06d8789846c72195f3"
+  const firebaseConfig = {
+    apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
+    authDomain: "house-point-system-lfairclo.firebaseapp.com",
+    databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
+    projectId: "house-point-system-lfairclo",
+    storageBucket: "house-point-system-lfairclo.firebasestorage.app",
+    messagingSenderId: "941089391114",
+    appId: "1:941089391114:web:028c06d8789846c72195f3"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const personSelect = document.getElementById("personSelect");
+  const newValue = document.getElementById("newValue");
+  const submitBtn = document.getElementById("submitBtn");
+  const status = document.getElementById("status");
+
+  const activityIndex = 0; // For activity1.html (0 = Activity 1)
+
+  // Step 1: Load both Firebase array and names
+  Promise.all([
+    get(ref(db, "arrays/myArray")),
+    fetch("names.json").then(res => res.json())
+  ]).then(([snapshot, names]) => {
+    if (!snapshot.exists()) {
+      status.innerText = "No data found in database.";
+      return;
+    }
+
+    const data = snapshot.val();
+    const totalPeople = Math.floor(data.length / 4);
+
+    // Step 2: Populate dropdown with names (or fallback)
+    for (let i = 0; i < totalPeople; i++) {
+      const option = document.createElement("option");
+      option.value = i;
+      option.innerText = names[i] || `Person ${i + 1}`;
+      personSelect.appendChild(option);
+    }
+
+    // Step 3: Update score
+    submitBtn.onclick = () => {
+      const personIndex = parseInt(personSelect.value);
+      const value = parseInt(newValue.value);
+      const position = personIndex * 4 + activityIndex;
+
+      data[position] = value;
+
+      set(ref(db, "arrays/myArray"), data)
+        .then(() => {
+          status.innerText = `Score updated for ${names[personIndex] || `Person ${personIndex + 1}`}`;
+        })
+        .catch((err) => {
+          status.innerText = "Error: " + err;
+        });
     };
+  }).catch((err) => {
+    status.innerText = "Error loading data or names: " + err;
+  });
+</script>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const personSelect = document.getElementById("personSelect");
-    const newValue = document.getElementById("newValue");
-    const submitBtn = document.getElementById("submitBtn");
-    const status = document.getElementById("status");
-
-    const activityIndex = X - 1; // 0 for Activity 1, etc.
-
-    // Load data and populate person list
-    get(ref(db, "arrays/myArray")).then(snapshot => {
-      if (!snapshot.exists()) {
-        status.innerText = "No data found.";
-        return;
-      }
-
-      const data = snapshot.val();
-      const totalPeople = Math.floor(data.length / 4);
-
-      for (let i = 0; i < totalPeople; i++) {
-        const option = document.createElement("option");
-        option.value = i;
-        option.innerText = `Person ${i + 1}`;
-        personSelect.appendChild(option);
-      }
-
-      // Submit handler
-      submitBtn.onclick = () => {
-        const personIndex = parseInt(personSelect.value);
-        const value = parseInt(newValue.value);
-        const position = personIndex * 4 + activityIndex;
-
-        data[position] = value;
-
-        set(ref(db, "arrays/myArray"), data)
-          .then(() => {
-            status.innerText = "Score updated successfully!";
-          })
-          .catch((err) => {
-            status.innerText = "Error: " + err;
-          });
-      };
-    });
-  </script>
 </body>
 </html>
