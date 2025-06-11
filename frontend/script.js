@@ -1,50 +1,23 @@
-const socket = io('https://house-point-system-arnold-house.onrender.com'); // ✅ FIXED
-const valueSpan = document.getElementById('value');
+function split_to_activities() {
+const myArray = [0, 1, 2, 10, 20, 30, 40, 50, 60, 70, 80];
 
-socket.on('update', (newValue) => {
-  console.log('Socket update received:', newValue);
-  document.getElementById('value').textContent = newValue;
-});
+// Create empty activity arrays
+const activity1 = [];
+const activity2 = [];
+const activity3 = [];
+const activity4 = [];
 
-
-
-function updateSharedString(newValue) {
-  console.log("Sending update to server:", newValue);
-  fetch('https://house-point-system-arnold-house.onrender.com/data', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ encoded: newValue }),
-  })
-  .then(res => res.json())
-  .then(data => {
-    console.log("Server acknowledged update:", data);
-  })
-  .catch(err => console.error("Update failed:", err));
+// Start processing from index 3
+for (let i = 3; i <= myArray.length - 4; i += 4) {
+  activity1.push(myArray[i]);
+  activity2.push(myArray[i + 1]);
+  activity3.push(myArray[i + 2]);
+  activity4.push(myArray[i + 3]);
 }
 
+console.log("Activity 1:", activity1);
+console.log("Activity 2:", activity2);
+console.log("Activity 3:", activity3);
+console.log("Activity 4:", activity4);
 
-function getSharedString() {
-  fetch('https://house-point-system-arnold-house.onrender.com/data')
-    .then(response => response.json())
-    .then(data => {
-      console.log('Retrieved shared string:', data.encoded);
-      document.getElementById('value').textContent = data.encoded;
-    })
-    .catch(error => {
-      console.error('Error retrieving shared string:', error);
-    });
 }
-
-
-document.getElementById('createnewint').addEventListener("click", () => {
-  const boyCount = parseInt(document.getElementById("boyCount").value);
-  const teacherCount = parseInt(document.getElementById("teacherCount").value);
-
-  let tempint = 101010;
-
-  updateSharedString(tempint);
-}); // ✅ Fully closed with ); now
-
-window.addEventListener('DOMContentLoaded', () => {
-  getSharedString();
-});
