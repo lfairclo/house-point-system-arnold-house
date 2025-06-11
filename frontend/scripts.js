@@ -46,7 +46,7 @@ loadBtn.onclick = () => {
       let html = "<table border='1' cellpadding='6' style='border-collapse: collapse;'>";
       html += "<tr><th>Person</th><th>Activity 1</th><th>Activity 2</th><th>Activity 3</th><th>Activity 4</th></tr>";
 
-      for (let i = 0; i < activity1.length; i++) {
+      for (let i = 0; i < numPeople; i++) {
         html += `<tr>
           <td>Person ${i + 1}</td>
           <td>${activity1[i]}</td>
@@ -62,4 +62,6 @@ loadBtn.onclick = () => {
     .catch((err) => {
       output.innerText = "Load failed: " + err;
     });
+
+  
 };
