@@ -1,30 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Shared Integer</title>
+  <title>Firebase Array Viewer</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+    #data-display {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Shared Number: <span id="value">Loading...</span></h1>
-  
-  <button onclick="socket.emit('increment')">+1</button>
-  <button onclick="socket.emit('decrement')">-1</button>
+  <h1>Firebase Array Viewer</h1>
 
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script src="script.js"></script>
+  <button id="saveBtn">Save Array</button>
+  <button id="loadBtn">Load Array</button>
 
-  
-  <label for="boyCount">Number of Boys:</label>
-  <input type="number" id="boyCount" min="1" value="2">
-  
-  <br>
-  
-  <label for="teacherCount">Number of Teachers:</label>
-  <input type="number" id="teacherCount" min="1" value="2">
+  <div id="data-display">Array data will appear here...</div>
 
-  <br><br>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  <button id="createnewint">create new school</button>
-  
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_DATABASE_NAME.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const saveBtn = document.getElementById('saveBtn');
+    const loadBtn = document.getElementById('loadBtn');
+    const display = document.getElementById('data-display');
+
+    const sampleArray = [10, 20, 30, 40, 50];
+
+    saveBtn.onclick = () => {
+      set(ref(db, 'arrays/myArray'), sampleArray)
+        .then(() => {
+          display.innerText = 'Array saved to Firebase!';
+        })
+        .catch((error) => {
+          display.innerText = 'Save failed: ' + error;
+        });
+    };
+
+    loadBtn.onclick = () => {
+      get(ref(db, 'arrays/myArray'))
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            display.innerText = 'Loaded Array: ' + JSON.stringify(data);
+          } else {
+            display.innerText = 'No data found.';
+          }
+        })
+        .catch((error) => {
+          display.innerText = 'Load failed: ' + error;
+        });
+    };
+  </script>
 </body>
 </html>
