@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Activity 3</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f0f0f0;
+    }
+    label, select, input {
+      display: block;
+      margin: 1rem 0;
+    }
+    button {
+      padding: 0.5rem 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Edit Activity 3</h1>
+
+  <label for="personSelect">Select Person:</label>
+  <select id="personSelect">
+    <!-- Options will be filled dynamically -->
+  </select>
+
+  <label for="newValue">Enter New Value:</label>
+  <input type="number" id="newValue" />
+
+  <button id="submitBtn">Submit</button>
+  <p id="status"></p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
+      authDomain: "house-point-system-lfairclo.firebaseapp.com",
+      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "house-point-system-lfairclo",
+      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
+      messagingSenderId: "941089391114",
+      appId: "1:941089391114:web:028c06d8789846c72195f3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const personSelect = document.getElementById("personSelect");
+    const newValue = document.getElementById("newValue");
+    const submitBtn = document.getElementById("submitBtn");
+    const status = document.getElementById("status");
+
+    const activityIndex = X - 1; // 0 for Activity 1, etc.
+
+    // Load data and populate person list
+    get(ref(db, "arrays/myArray")).then(snapshot => {
+      if (!snapshot.exists()) {
+        status.innerText = "No data found.";
+        return;
+      }
+
+      const data = snapshot.val();
+      const totalPeople = Math.floor(data.length / 4);
+
+      for (let i = 0; i < totalPeople; i++) {
+        const option = document.createElement("option");
+        option.value = i;
+        option.innerText = `Person ${i + 1}`;
+        personSelect.appendChild(option);
+      }
+
+      // Submit handler
+      submitBtn.onclick = () => {
+        const personIndex = parseInt(personSelect.value);
+        const value = parseInt(newValue.value);
+        const position = personIndex * 4 + activityIndex;
+
+        data[position] = value;
+
+        set(ref(db, "arrays/myArray"), data)
+          .then(() => {
+            status.innerText = "Score updated successfully!";
+          })
+          .catch((err) => {
+            status.innerText = "Error: " + err;
+          });
+      };
+    });
+  </script>
+</body>
+</html>
