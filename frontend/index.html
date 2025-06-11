@@ -1,79 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Firebase Array Viewer</title>
+  <meta charset="UTF-8" />
+  <title>House point compiler</title></title>
   <style>
     body {
       font-family: sans-serif;
       padding: 2rem;
       background: #f9f9f9;
     }
-    #data-display {
+    button {
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    #output {
       margin-top: 1rem;
-      padding: 1rem;
+      white-space: pre-wrap;
       background: #fff;
+      padding: 1rem;
       border: 1px solid #ccc;
       border-radius: 8px;
     }
   </style>
 </head>
 <body>
-  <h1>Firebase Array Viewer</h1>
+  <h1>Sports Day House Points</h1>
 
-  <button id="saveBtn">Save Array</button>
-  <button id="loadBtn">Load Array</button>
+  <button id="saveBtn">Save Sample Array</button>
+  <button id="loadBtn">Load & Parse Array</button>
 
-  <div id="data-display">Array data will appear here...</div>
+  <div id="output">Output will appear here...</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
-      authDomain: "house-point-system-lfairclo.firebaseapp.com",
-      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
-      projectId: "house-point-system-lfairclo",
-      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
-      messagingSenderId: "941089391114",
-      appId: "1:941089391114:web:028c06d8789846c72195f3"
-    };
-
-    
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    const saveBtn = document.getElementById('saveBtn');
-    const loadBtn = document.getElementById('loadBtn');
-    const display = document.getElementById('data-display');
-
-    const sampleArray = [128, 25, 103, 0, 0];
-
-    saveBtn.onclick = () => {
-      set(ref(db, 'arrays/nelson'), sampleArray)
-        .then(() => {
-          display.innerText = 'Array saved to Firebase!';
-        })
-        .catch((error) => {
-          display.innerText = 'Save failed: ' + error;
-        });
-    };
-
-    loadBtn.onclick = () => {
-      get(ref(db, 'arrays/nelson'))
-        .then((snapshot) => {
-          if (snapshot.exists()) {
-            const data = snapshot.val();
-            display.innerText = 'Loaded Array: ' + JSON.stringify(data);
-          } else {
-            display.innerText = 'No data found.';
-          }
-        })
-        .catch((error) => {
-          display.innerText = 'Load failed: ' + error;
-        });
-    };
-  </script>
+  <!-- Firebase + Script -->
+  <script type="module" src="scripts.js"></script>
 </body>
 </html>
