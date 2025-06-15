@@ -83,8 +83,6 @@
           option.textContent = names[i] || `Person ${i + 1}`;
           personSelect.appendChild(option);
         }
-
-        import { add_points } from './scripts.js';
         
         submitBtn.onclick = async () => {
           const personIndex = parseInt(personSelect.value);
