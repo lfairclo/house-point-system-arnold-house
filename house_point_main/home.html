@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>House point giver</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    label, select, input {
+      display: block;
+      margin: 1rem 0;
+    }
+    button {
+      padding: 0.5rem 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>House point giver</h1>
+
+  <label for="personSelect">Select Person:</label>
+  <select id="personSelect">
+    <option disabled selected>Loading people...</option>
+  </select>
+
+  <label for="newValue">New Activity Value:</label>
+  <input type="number" id="newValue" />
+
+  <button id="submitBtn">Submit</button>
+  <p id="status"></p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // ✅ Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
+      authDomain: "house-point-system-lfairclo.firebaseapp.com",
+      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "house-point-system-lfairclo",
+      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
+      messagingSenderId: "941089391114",
+      appId: "1:941089391114:web:028c06d8789846c72195f3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const personSelect = document.getElementById("personSelect");
+    const newValue = document.getElementById("newValue");
+    const submitBtn = document.getElementById("submitBtn");
+    const status = document.getElementById("status");
+
+    const activityIndex = 0; // Activity 1 = index 0
+
+    async function setup() {
+      try {
+        // Fetch names
+        const namesRes = await fetch("names.json");
+        const names = await namesRes.json();
+
+        // Fetch data from Firebase
+        const snapshot = await get(ref(db, "arrays/house_points"));
+        if (!snapshot.exists()) {
+          status.innerText = "No array found in Firebase.";
+          return;
+        }
+
+        const data = snapshot.val();
+        const numPeople = Math.floor(data.length / 4);
+
+        // Clear and populate dropdown
+        personSelect.innerHTML = ""; // remove "Loading..." option
+        for (let i = 0; i < numPeople; i++) {
+          const option = document.createElement("option");
+          option.value = i;
+          option.textContent = names[i] || `Person ${i + 1}`;
+          personSelect.appendChild(option);
+        }
+
+        submitBtn.onclick = async () => {
+          const personIndex = parseInt(personSelect.value);
+          const newVal = parseInt(newValue.value);
+          const position = personIndex * 4 + activityIndex;
+
+          data[position] = newVal;
+
+          await set(ref(db, "arrays/house_points"), data);
+          status.textContent = `Updated ${names[personIndex] || `Person ${personIndex + 1}`}'s Activity 1 score to ${newVal}`;
+        };
+      } catch (error) {
+        status.textContent = "Error loading: " + error;
+      }
+    }
+
+    setup();
+  </script>
+</body>
+</html>
