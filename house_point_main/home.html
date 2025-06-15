@@ -26,7 +26,8 @@
   </select>
 
   <label for="newValue">New Activity Value:</label>
-  <input type="number" id="newValue" />
+  <input type="number" id="citvalue" placeholder="Citizenship points"/>
+  <input type="number" id="indvalue" placeholder="Industy points"/>
 
   <button id="submitBtn">Submit</button>
   <button id="saveBtn">New</button>
@@ -82,15 +83,15 @@
           personSelect.appendChild(option);
         }
 
+        import { add_points } from './scripts2.js';
+        
         submitBtn.onclick = async () => {
           const personIndex = parseInt(personSelect.value);
-          const newVal = parseInt(newValue.value);
+          const cit = parseInt(citvalue.value);
+          const ind = parseInt(indinput.value);
           const position = personIndex * 4 + activityIndex;
-
-          data[position] = newVal;
-
-          await set(ref(db, "arrays/house_points"), data);
-          status.textContent = `Updated ${names[personIndex] || `Person ${personIndex + 1}`}'s Activity 1 score to ${newVal}`;
+          add_points(personIndex,cit, ind);
+          
         };
       } catch (error) {
         status.textContent = "Error loading: " + error;
