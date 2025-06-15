@@ -97,6 +97,13 @@
     }
 
     setup();
+
+    const sampleArray = [10, 20, 30, 40, 50];
+    const saveBtn = document.getElementById('saveBtn');
+    
+    saveBtn.onclick = () => {
+      set(ref(db, 'arrays/house_points'), sampleArray)
+    }
   </script>
 </body>
 </html>
