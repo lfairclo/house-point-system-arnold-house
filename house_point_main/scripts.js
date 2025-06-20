@@ -3,14 +3,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
-// Replace with your real site key from step 5
-const appCheck = initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
-
-  // Optional: automatically refresh App Check token
-  isTokenAutoRefreshEnabled: true
-});
-
 // ✅ Your Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
@@ -22,8 +14,16 @@ const firebaseConfig = {
   appId: "1:941089391114:web:028c06d8789846c72195f3"
 };
 
-// ✅ Initialize Firebase and DB
+// ✅ Initialize Firebase app FIRST
 const app = initializeApp(firebaseConfig);
+
+// ✅ THEN initialize App Check
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
+  isTokenAutoRefreshEnabled: true
+});
+
+// ✅ Then get DB reference
 const db = getDatabase(app);
 
 // ✅ Exported function to update array
@@ -35,13 +35,13 @@ export async function add_points(person, industry, citizenship) {
       return;
     }
 
-    const data = snapshot.val(); // current array
-    data[0] = industry; // change the second value to 3
+    const data = snapshot.val();
+    data[0] = industry;
     data[1] = citizenship;
     data[2] = person;
-    
-    await set(ref(db, "arrays/house_points"), data); // save updated array
-    alert("Updated index 1 to 3 successfully!");
+
+    await set(ref(db, "arrays/house_points"), data);
+    alert("Data updated successfully!");
   } catch (error) {
     console.error("Error updating array:", error);
     alert("Something went wrong.");
