@@ -1,6 +1,15 @@
 // ✅ Import Firebase (must use 'type="module"' in your HTML)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+
+// Replace with your real site key from step 5
+const appCheck = initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
+
+  // Optional: automatically refresh App Check token
+  isTokenAutoRefreshEnabled: true
+});
 
 // ✅ Your Firebase config
 const firebaseConfig = {
