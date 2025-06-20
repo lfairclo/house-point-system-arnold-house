@@ -29,6 +29,7 @@ export async function add_points(person, industry, citizenship) {
     const data = snapshot.val(); // current array
     data[0] = industry; // change the second value to 3
     data[1] = citizenship;
+    data[2] = people;
     
     await set(ref(db, "arrays/house_points"), data); // save updated array
     alert("Updated index 1 to 3 successfully!");
