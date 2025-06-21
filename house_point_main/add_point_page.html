@@ -110,14 +110,14 @@
     }
     onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const roleSnap = await get(ref(db, `teachers/${user.uid}`));
-        const role = roleSnap.exists() ? roleSnap.val() : null;
-    
-        if (role !== "teacher") {
+        const teacheryesno = await get(ref(db, `teachers/${user.uid}`));
+        
+        if (teacheryesno==null) {
           alert("Access denied. This page is for teachers only.");
           window.location.href = "home.html"; // or your student dashboard
         } else {
           // Load teacher dashboard content here
+          alert("welcome teacher")
         }
       } else {
         window.location.href = "login.html";
