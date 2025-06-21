@@ -60,6 +60,7 @@
         signInWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
             console.log("Logged in:", userCredential.user);
+            window.location.href = "home.html";
           })
           .catch((error) => {
             console.error("Login error:", error.message);
