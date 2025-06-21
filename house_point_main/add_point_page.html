@@ -106,6 +106,22 @@
       set(ref(db, "students/0/ind"), sampleArray)
       set(ref(db, "students/0/cit"), sampleArray)
     }
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const roleSnap = await get(ref(db, `teachers/${user.uid}`));
+        const role = roleSnap.exists() ? roleSnap.val() : null;
+    
+        if (role !== "teacher") {
+          alert("Access denied. This page is for teachers only.");
+          window.location.href = "home.html"; // or your student dashboard
+        } else {
+          // Load teacher dashboard content here
+        }
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
   </script>
 </body>
 </html>
