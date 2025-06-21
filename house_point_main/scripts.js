@@ -26,7 +26,7 @@ const appCheck = initializeAppCheck(app, {
 // ✅ Then get DB reference
 const db = getDatabase(app);
 
-
+//aaaa
 export async function add_points(boy, ind, cit,teacher) {
   
   console.log("Teacher : "+teacher);
