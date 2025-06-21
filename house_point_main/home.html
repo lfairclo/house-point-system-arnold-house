@@ -2,95 +2,99 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Sign Up</title>
+  <title>House Points Home</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; }
-    input, button, label { display: block; margin: 1rem 0; }
-    #teacherCodeWrap { display: none; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    .button {
+      display: block;
+      margin: 1rem auto;
+      padding: 1rem 2rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 80%;
+      max-width: 300px;
+      text-decoration: none;
+    }
+    .button:hover {
+      background: #0056b3;
+    }
   </style>
 </head>
 <body>
-  <h2>Create Account</h2>
-  
-  <input type="email" id="email" placeholder="Email" />
-  <input type="password" id="password" placeholder="Password" />
+  <h1>Welcome to the House Points System</h1>
+  <p id="welcomeText">Loading...</p>
 
-  <label>
-    <input type="checkbox" id="isTeacher" />
-    I am a teacher
-  </label>
-
-  <div id="teacherCodeWrap">
-    <input type="password" id="teacherCode" placeholder="Enter teacher password" />
+  <!-- Buttons shown only to teachers -->
+  <div id="teacherActions" style="display: none;">
+    <a class="button" href="add_points.html">Give House Points</a>
+    <a class="button" href="add_demerits.html">Add Demerits</a>
   </div>
 
-  <button id="signUpBtn">Sign Up</button>
-  <p id="status"></p>
+  <!-- Buttons shown only to students -->
+  <div id="studentActions" style="display: none;">
+    <a class="button" href="view_points.html">View My House Points</a>
+    <a class="button" href="view_demerits.html">View My Demerits</a>
+  </div>
+
+  <!-- Button shown to everyone -->
+  <a class="button" href="leaderboard.html">View Leaderboard</a>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import {
+      getAuth,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getDatabase,
+      ref,
+      get
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
-      authDomain: "house-point-system-lfairclo.firebaseapp.com",
-      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
-      projectId: "house-point-system-lfairclo",
-      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
-      messagingSenderId: "941089391114",
-      appId: "1:941089391114:web:028c06d8789846c72195f3"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      databaseURL: "YOUR_DB_URL",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_BUCKET",
+      messagingSenderId: "YOUR_MSID",
+      appId: "YOUR_APP_ID"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    const isTeacher = document.getElementById("isTeacher");
-    const teacherCodeWrap = document.getElementById("teacherCodeWrap");
-    const signUpBtn = document.getElementById("signUpBtn");
-    const status = document.getElementById("status");
+    const welcomeText = document.getElementById("welcomeText");
+    const teacherActions = document.getElementById("teacherActions");
+    const studentActions = document.getElementById("studentActions");
 
-    // Show/hide teacher code field
-    isTeacher.onchange = () => {
-      teacherCodeWrap.style.display = isTeacher.checked ? "block" : "none";
-    };
-
-    signUpBtn.onclick = async () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const teacherCode = document.getElementById("teacherCode").value;
-
-      const wantsToBeTeacher = isTeacher.checked;
-
-      if (!email || !password) {
-        status.textContent = "Please enter an email and password.";
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html"; // redirect if not signed in
         return;
       }
 
-      if (wantsToBeTeacher && teacherCode !== "728382") {
-        status.textContent = "Incorrect teacher code.";
-        return;
+      const uid = user.uid;
+      const roleSnap = await get(ref(db, `users/${uid}/role`));
+      const role = roleSnap.exists() ? roleSnap.val() : "student";
+
+      welcomeText.textContent = `Welcome, ${user.email} (${role})`;
+
+      if (role === "teacher") {
+        teacherActions.style.display = "block";
+      } else if (role === "student") {
+        studentActions.style.display = "block";
       }
-
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const userId = userCredential.user.uid;
-
-        const role = wantsToBeTeacher ? "teacher" : "student";
-
-        // Save role in database
-        await set(ref(db, `users/${userId}`), {
-          email: email,
-          role: role
-        });
-
-        status.textContent = `Account created successfully as a ${role}.`;
-      } catch (error) {
-        console.error("Sign-up error:", error);
-        status.textContent = error.message;
-      }
-    };
+    });
   </script>
 </body>
 </html>
