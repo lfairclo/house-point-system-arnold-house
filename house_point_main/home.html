@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    input, button, label { display: block; margin: 1rem 0; }
+    #teacherCodeWrap { display: none; }
+  </style>
+</head>
+<body>
+  <h2>Create Account</h2>
+  
+  <input type="email" id="email" placeholder="Email" />
+  <input type="password" id="password" placeholder="Password" />
+
+  <label>
+    <input type="checkbox" id="isTeacher" />
+    I am a teacher
+  </label>
+
+  <div id="teacherCodeWrap">
+    <input type="password" id="teacherCode" placeholder="Enter teacher password" />
+  </div>
+
+  <button id="signUpBtn">Sign Up</button>
+  <p id="status"></p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
+      authDomain: "house-point-system-lfairclo.firebaseapp.com",
+      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "house-point-system-lfairclo",
+      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
+      messagingSenderId: "941089391114",
+      appId: "1:941089391114:web:028c06d8789846c72195f3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const isTeacher = document.getElementById("isTeacher");
+    const teacherCodeWrap = document.getElementById("teacherCodeWrap");
+    const signUpBtn = document.getElementById("signUpBtn");
+    const status = document.getElementById("status");
+
+    // Show/hide teacher code field
+    isTeacher.onchange = () => {
+      teacherCodeWrap.style.display = isTeacher.checked ? "block" : "none";
+    };
+
+    signUpBtn.onclick = async () => {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const teacherCode = document.getElementById("teacherCode").value;
+
+      const wantsToBeTeacher = isTeacher.checked;
+
+      if (!email || !password) {
+        status.textContent = "Please enter an email and password.";
+        return;
+      }
+
+      if (wantsToBeTeacher && teacherCode !== "728382") {
+        status.textContent = "Incorrect teacher code.";
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userId = userCredential.user.uid;
+
+        const role = wantsToBeTeacher ? "teacher" : "student";
+
+        // Save role in database
+        await set(ref(db, `users/${userId}`), {
+          email: email,
+          role: role
+        });
+
+        status.textContent = `Account created successfully as a ${role}.`;
+      } catch (error) {
+        console.error("Sign-up error:", error);
+        status.textContent = error.message;
+      }
+    };
+  </script>
+</body>
+</html>
