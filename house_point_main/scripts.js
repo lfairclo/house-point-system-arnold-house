@@ -31,7 +31,7 @@ export async function add_points(boy, ind, cit,teacher) {
   
   console.log("Teacher : "+teacher);
 
-  try
+  try{
     const indboy = await get(ref(db, `students/${boy}/ind`));
     if (!indboy.exists()) {
      alert("No indboy found in Firebase.");
@@ -46,6 +46,7 @@ export async function add_points(boy, ind, cit,teacher) {
     console.error("Error updating array:", error);
     alert("Something went wrong.");
   }
+  try{
   const citboy = await get(ref(db, `students/${boy}/cit`));
     if (!citboy.exists()) {
      alert("No citboy found in Firebase.");
