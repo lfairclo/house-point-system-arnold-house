@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Leaderboard</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 0.75rem; border: 1px solid #ccc; text-align: left; }
+    th { background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <h1>House Point Leaderboard</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Name</th>
+        <th>Citizenship</th>
+        <th>Industry</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboardBody">
+      <!-- Filled dynamically -->
+    </tbody>
+  </table>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
+      authDomain: "house-point-system-lfairclo.firebaseapp.com",
+      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "house-point-system-lfairclo",
+      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
+      messagingSenderId: "941089391114",
+      appId: "1:941089391114:web:028c06d8789846c72195f3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const tbody = document.getElementById("leaderboardBody");
+
+    async function loadLeaderboard() {
+      const [studentsSnap, namesRes] = await Promise.all([
+        get(ref(db, "students")),
+        fetch("names.json")
+      ]);
+
+      const names = await namesRes.json();
+      const students = studentsSnap.val();
+
+      if (!students) {
+        tbody.innerHTML = "<tr><td colspan='5'>No student data found.</td></tr>";
+        return;
+      }
+
+      // Build array of scores
+      const rows = Object.entries(students).map(([uid, info]) => {
+        const cit = Array.isArray(info.cit) ? info.cit.reduce((a, b) => a + b, 0) : 0;
+        const ind = Array.isArray(info.ind) ? info.ind.reduce((a, b) => a + b, 0) : 0;
+        return {
+          name: names[uid] || uid,
+          citizenship: cit,
+          industry: ind,
+          total: cit + ind
+        };
+      });
+
+      // Sort by total descending
+      rows.sort((a, b) => b.total - a.total);
+
+      // Render to table
+      tbody.innerHTML = rows.map((row, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${row.name}</td>
+          <td>${row.citizenship}</td>
+          <td>${row.industry}</td>
+          <td>${row.total}</td>
+        </tr>
+      `).join("");
+    }
+
+    loadLeaderboard();
+  </script>
+</body>
+</html>
