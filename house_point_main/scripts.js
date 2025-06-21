@@ -26,23 +26,45 @@ const appCheck = initializeAppCheck(app, {
 // ✅ Then get DB reference
 const db = getDatabase(app);
 
-// ✅ Exported function to update array
-export async function add_points(person, industry, citizenship) {
-  try {
-    const snapshot = await get(ref(db, "arrays/house_points"));
-    if (!snapshot.exists()) {
-      alert("No data found in Firebase.");
-      return;
+
+export async function add_points(boy, ind, cit,teacher) {
+  
+  console.log("Teacher : "+teacher);
+
+  try{
+    const indboy = await get(ref(db, `students/${boy}/ind`));
+    if (!indboy.exists()) {
+     alert("No indboy found in Firebase.");
+     return;
     }
+  }
+  try
+    const citboy = await get(ref(db, `students/${boy}/cit`));
+    if (!citboy.exists()) {
+     alert("No citboy found in Firebase.");
+     return;
+    }
+  }
+  const indboy = indboy.val();
+  indboy.push(teacher);
+  console.log(indboy);
+  
+  const citboy = citboy.val();
+  citboy.push(teacher);
+  console.log(citboy);
 
-    const data = snapshot.val();
-    data[0] = industry;
-    data[1] = citizenship;
-
-    await set(ref(db, "arrays/house_points"), data);
+  await set(ref(db, `students/${boy}/ind`), boyarrayint);
+    alert("Data updated successfully!");
+  } catch (error) {
+    console.error("Error updating array:", error);
+    alert("Something went wrong.");
+  }
+  await set(ref(db, `students/${boy}/cit`), boyarraycit);
     alert("Data updated successfully!");
   } catch (error) {
     console.error("Error updating array:", error);
     alert("Something went wrong.");
   }
 }
+
+
