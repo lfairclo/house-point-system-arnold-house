@@ -37,10 +37,11 @@ export async function add_points(boy, ind, cit,teacher) {
      alert("No indboy found in Firebase.");
      return;
     } 
-  const indboy = indboy.val();
-  indboy.push(teacher);
-  console.log(indboy);
-  await set(ref(db, `students/${boy}/ind`), boyarrayint);
+  const indboytemp = indboy.val();
+  indboytemp.push(teacher);
+  console.log(indboytemp);
+    
+  await set(ref(db, `students/${boy}/ind`), indboytemp);
     alert("Data updated successfully!");
   } catch (error) {
     console.error("Error updating array:", error);
@@ -52,11 +53,11 @@ export async function add_points(boy, ind, cit,teacher) {
      alert("No citboy found in Firebase.");
      return;
     }
-  const citboy = citboy.val();
-    citboy.push(teacher);
-    console.log(citboy);
+  const citboytemp = citboy.val();
+    citboytemp.push(teacher);
+    console.log(citboytemp);
   
-  await set(ref(db, `students/${boy}/cit`), boyarraycit);
+  await set(ref(db, `students/${boy}/cit`), citboytemp);
       alert("Data updated successfully!");
     } catch (error) {
       console.error("Error updating array:", error);
