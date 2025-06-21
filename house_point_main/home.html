@@ -49,15 +49,22 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {
-      getDatabase,
-      ref,
-      get
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {getDatabase,ref,get} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
+      authDomain: "house-point-system-lfairclo.firebaseapp.com",
+      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "house-point-system-lfairclo",
+      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
+      messagingSenderId: "941089391114",
+      appId: "1:941089391114:web:028c06d8789846c72195f3"
+    };
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
@@ -69,6 +76,8 @@
       appId: "1:941089391114:web:028c06d8789846c72195f3"
     };
 
+
+   
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
@@ -77,6 +86,12 @@
     const teacherActions = document.getElementById("teacherActions");
     const studentActions = document.getElementById("studentActions");
 
+     // ✅ THEN initialize App Check
+    const appCheck = initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
+      isTokenAutoRefreshEnabled: true
+    });
+    
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "login.html"; // redirect if not signed in
