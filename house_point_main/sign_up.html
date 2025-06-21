@@ -90,10 +90,11 @@
 
         // Save role in database
         if(role=="teacher"){
-          await set(ref(db, `teachers/${userId}`), {email, name});
+          await set(ref(db, `teachers/${userId}`), {email:email, name:name});
+
           window.location.replace("https://lfairclo.github.io/house-point-system-arnold-house/house_point_main/home.html");
         }else{
-          await set(ref(db, `students/${userId}`), {email, name});
+          await set(ref(db, `students/${userId}`), {email:email, name:name});
           window.location.replace("https://lfairclo.github.io/house-point-system-arnold-house/house_point_main/home.html");
         }
 
