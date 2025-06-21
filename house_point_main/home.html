@@ -89,7 +89,7 @@
           const cit = parseInt(citvalue.value);
           const ind = parseInt(indvalue.value);
           const position = personIndex * 4 + activityIndex;
-          add_points(personIndex,cit, ind);
+          add_points(personIndex,cit, ind, 2);
           
         };
       } catch (error) {
@@ -103,7 +103,8 @@
     const saveBtn = document.getElementById('saveBtn');
     
     saveBtn.onclick = () => {
-      set(ref(db, 'arrays/house_points'), sampleArray)
+      set(ref(db, "students/0/ind"), sampleArray)
+      set(ref(db, "students/0/cit"), sampleArray)
     }
   </script>
 </body>
