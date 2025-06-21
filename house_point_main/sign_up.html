@@ -80,7 +80,7 @@
         const role = wantsToBeTeacher ? "teacher" : "student";
 
         // Save role in database
-        if(role==teacher){
+        if(role=="teacher"){
           await set(ref(db, `teachers/${userId}`), email);
         }else{
           await set(red(db, `students/${userId}`), email);
