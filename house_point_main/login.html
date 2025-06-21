@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>House point giver</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    label, select, input {
+      display: block;
+      margin: 1rem 0;
+    }
+    button {
+      padding: 0.5rem 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>House point giver</h1>
+
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button id="loginBtn">Log In</button>
+  <button id="logoutBtn">Log Out</button>
+
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    setPersistence,
+    browserLocalPersistence,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "...",
+    authDomain: "...",
+    projectId: "...",
+    // other config...
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // ✅ Set session to persist even after page reload
+  setPersistence(auth, browserLocalPersistence)
+    .then(() => {
+      // Example login
+      document.getElementById("loginBtn").onclick = () => {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            console.log("Logged in:", userCredential.user);
+          })
+          .catch((error) => {
+            console.error("Login error:", error.message);
+          });
+      };
+    });
+
+  // ✅ Detect if user is already logged in (auto login)
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("User still logged in:", user.email);
+      // Show point system UI
+    } else {
+      console.log("No user is signed in");
+      // Show login form
+    }
+  });
+
+  // ✅ Optional logout button
+  document.getElementById("logoutBtn").onclick = () => {
+    signOut(auth);
+  };
+</script>
+</body>
+</html>
