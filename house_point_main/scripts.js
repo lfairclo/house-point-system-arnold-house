@@ -31,20 +31,18 @@ export async function add_points(boy, ind, cit,teacher) {
   
   console.log("Teacher : "+teacher);
 
-  try{
+  
     const indboy = await get(ref(db, `students/${boy}/ind`));
     if (!indboy.exists()) {
      alert("No indboy found in Firebase.");
      return;
     }
-  }
-  try
+  
     const citboy = await get(ref(db, `students/${boy}/cit`));
     if (!citboy.exists()) {
      alert("No citboy found in Firebase.");
      return;
     }
-  }
   const indboy = indboy.val();
   indboy.push(teacher);
   console.log(indboy);
