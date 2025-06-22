@@ -66,6 +66,11 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
+    const appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
+        isTokenAutoRefreshEnabled: true
+      });
+    
     const classSelect = document.getElementById("classSelect");
     const studentSelect = document.getElementById("studentSelect");
     const pointOptions = document.getElementById("pointOptions");
