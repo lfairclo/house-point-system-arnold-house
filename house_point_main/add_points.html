@@ -88,6 +88,8 @@
       teacherID = teacherSnap.exists() ? teacherSnap.val() : null;
       if (!teacherID) {
         status.textContent = "Error: You must be a teacher to give points.";
+        alert("Only teachers may access this web page");
+        window.location.replace("https://lfairclo.github.io/house-point-system-arnold-house/house_point_main/home.html");
       }
     });
 
