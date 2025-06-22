@@ -52,8 +52,8 @@
       isTokenAutoRefreshEnabled: true
     });
 
-    const classnew = document.getElementById("class");
-    const newclass = classnew.value;
+    
+    const newclass = document.getElementById('textbox_id').value.value;
     document.getElementById("subMT").onclick = () => {
       const classRef = ref(db, "classes");
       push(classRef, {newclass:newclass});
