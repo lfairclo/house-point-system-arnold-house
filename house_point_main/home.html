@@ -52,6 +52,7 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    import { getUserRole } from "./authUtils.js"; // ✅ Import your helper function
 
     // ✅ Firebase config
     const firebaseConfig = {
@@ -63,46 +64,33 @@
       messagingSenderId: "941089391114",
       appId: "1:941089391114:web:028c06d8789846c72195f3"
     };
+    
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getDatabase(app);
+    
+      const teacherActions = document.getElementById("teacherActions");
+      const studentActions = document.getElementById("studentActions");
+      const welcomeText = document.getElementById("welcomeText");
+    
+      onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+          window.location.href = "login.html";
+          return;
+        }
+    
+        const role = await getUserRole(user.uid, db);
+        welcomeText.textContent = `Welcome, ${user.email} (${role})`;
+    
+        if (role === "teacher") {
+          teacherActions.style.display = "block";
+        } else if (role === "student") {
+          studentActions.style.display = "block";
+        } else {
+          alert("Unrecognized role.");
+        }
+      });
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-
-    const welcomeText = document.getElementById("welcomeText");
-    const teacherActions = document.getElementById("teacherActions");
-    const studentActions = document.getElementById("studentActions");
-
-    // ✅ Initialize App Check
-    const appCheck = initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
-      isTokenAutoRefreshEnabled: true
-    });
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "login.html";
-        return;
-      }
-
-      const uid = user.uid;
-
-      // Check both possible roles
-      const [isTeacherSnap, isStudentSnap] = await Promise.all([
-        get(ref(db, `teachers/${uid}`)),
-        get(ref(db, `students/${uid}`))
-      ]);
-
-      if (isTeacherSnap.exists()) {
-        welcomeText.textContent = `Welcome, ${user.email} (Teacher)`;
-        teacherActions.style.display = "block";
-      } else if (isStudentSnap.exists()) {
-        welcomeText.textContent = `Welcome, ${user.email} (Student)`;
-        studentActions.style.display = "block";
-      } else {
-        welcomeText.textContent = `Welcome, ${user.email} (Unknown Role)`;
-        alert("Your account role couldn't be determined. Please contact admin.");
-      }
-    });
   </script>
 </body>
 </html>
