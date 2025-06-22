@@ -24,6 +24,12 @@
   <div id="teacherCodeWrap">
     <input type="password" id="teacherCode" placeholder="Enter teacher password" />
   </div>
+  <div id="studentClassWrap" style="display: none;">
+    <label for="classSelect">Select Your Class:</label>
+    <select id="classSelect">
+      <option disabled selected>Loading classes...</option>
+    </select>
+  </div>
 
   <button id="signUpBtn">Sign Up</button>
   <p id="status"></p>
@@ -31,7 +37,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, get, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
     const firebaseConfig = {
@@ -59,14 +65,41 @@
       isTokenAutoRefreshEnabled: true
     });
     // Show/hide teacher code field
+    
+    // Load classes from Firebase
+    async function loadClasses() {
+      const classRef = ref(db, 'classes');
+      const snap = await get(classRef);
+      const classSelect = document.getElementById("classSelect");
+    
+      if (snap.exists()) {
+        const data = snap.val();
+        classSelect.innerHTML = '<option disabled selected>Select a class...</option>';
+        Object.keys(data).forEach(className => {
+          const opt = document.createElement("option");
+          opt.value = className;
+          opt.textContent = className;
+          classSelect.appendChild(opt);
+        });
+      } else {
+        classSelect.innerHTML = '<option disabled>No classes found</option>';
+      }
+    }
+    
+    // Show/hide teacher code or class dropdown
     isTeacher.onchange = () => {
-      teacherCodeWrap.style.display = isTeacher.checked ? "block" : "none";
+      const isT = isTeacher.checked;
+      teacherCodeWrap.style.display = isT ? "block" : "none";
+      studentClassWrap.style.display = isT ? "none" : "block";
+      if (!isT) loadClasses(); // only load classes if student
     };
+
 
     signUpBtn.onclick = async () => {
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       const teacherCode = document.getElementById("teacherCode").value;
+      
       const name = document.getElementById("name").value
 
       const wantsToBeTeacher = isTeacher.checked;
@@ -76,7 +109,7 @@
         return;
       }
 
-      //Hey there. this next code is in fact what you are looking for and i was lying about the ip tracking. ¯\_(ツ)_/¯ 
+      //Hey there. this next code is in fact what you are looking for and i was lying about the ip tracking. ¯\_(ツ)_/¯ . nice job m8
       if (wantsToBeTeacher && teacherCode !== "728382") {
         status.textContent = "Incorrect teacher code. If you are a student i am letting you know there are over 100,000 different codes it could be. After too many incorrect attempts your domain ip is reported to youor school.";
         return;
@@ -90,7 +123,27 @@
 
         // Save role in database
         if(role=="teacher"){
-          await set(ref(db, `teachers/${userId}`), {email:email, name:name});
+          // Fetch all existing teachers to determine the next available ID
+        const teachersRef = ref(db, 'teachers');
+        const snapshot = await get(teachersRef);
+        let newId = 1;
+        
+        if (snapshot.exists()) {
+          const teachers = snapshot.val();
+          const ids = Object.values(teachers)
+            .map(t => t.id)
+            .filter(id => typeof id === 'number');
+          if (ids.length > 0) {
+            newId = Math.max(...ids) + 1;
+          }
+        }
+        
+        // Now set teacher profile with unique incremented ID
+        await set(ref(db, `teachers/${userId}`), {
+          email: email,
+          name: name,
+          id: newId
+        });
 
           window.location.replace("https://lfairclo.github.io/house-point-system-arnold-house/house_point_main/home.html");
         }else{
