@@ -69,6 +69,12 @@
       const auth = getAuth(app);
       const db = getDatabase(app);
     
+    // ✅ THEN initialize App Check
+      const appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
+        isTokenAutoRefreshEnabled: true
+      });
+    
       const teacherActions = document.getElementById("teacherActions");
       const studentActions = document.getElementById("studentActions");
       const welcomeText = document.getElementById("welcomeText");
