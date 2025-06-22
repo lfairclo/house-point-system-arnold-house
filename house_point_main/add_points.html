@@ -2,44 +2,56 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>House point giver</title>
+  <title>Give House Points</title>
   <style>
     body {
       font-family: sans-serif;
       padding: 2rem;
+      max-width: 600px;
+      margin: auto;
     }
-    label, select, input {
+    label, select, button {
       display: block;
       margin: 1rem 0;
     }
-    button {
-      padding: 0.5rem 1rem;
+    .points-section label {
+      display: inline-block;
+      margin-right: 1rem;
     }
   </style>
 </head>
 <body>
-  <h1>House point giver</h1>
+  <h1>Give House Points</h1>
 
-  <label for="personSelect">Select Person:</label>
-  <select id="personSelect">
-    <option disabled selected>Loading people...</option>
+  <label for="classSelect">Select Class:</label>
+  <select id="classSelect">
+    <option selected disabled>Select a class...</option>
   </select>
 
-  <label for="newValue">New Activity Value:</label>
-  <input type="number" id="citvalue" placeholder="Citizenship points"/>
-  <input type="number" id="indvalue" placeholder="Industy points"/>
+  <label for="studentSelect" style="display:none;">Select Student:</label>
+  <select id="studentSelect" style="display:none;"></select>
 
-  <button id="submitBtn">Submit</button>
-  <button id="saveBtn">New</button>
+  <div class="points-section" id="pointOptions" style="display:none;">
+    <h3>Industry Points</h3>
+    <label><input type="radio" name="indPoints" value="1"> +1</label>
+    <label><input type="radio" name="indPoints" value="2"> +2</label>
+    <label><input type="radio" name="indPoints" value="3"> +3</label>
+
+    <h3>Citizenship Points</h3>
+    <label><input type="radio" name="citPoints" value="1"> +1</label>
+    <label><input type="radio" name="citPoints" value="2"> +2</label>
+    <label><input type="radio" name="citPoints" value="3"> +3</label>
+
+    <button id="submitBtn">Submit</button>
+  </div>
+
   <p id="status"></p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-    import { add_points } from './scripts.js'; // ✅ Import your external function
-    import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    
-    // ✅ Firebase config
+    import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
       authDomain: "house-point-system-lfairclo.firebaseapp.com",
@@ -51,78 +63,94 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getDatabase(app);
+    const auth = getAuth(app);
 
-    const personSelect = document.getElementById("personSelect");
-    const newValue = document.getElementById("newValue");
-    const submitBtn = document.getElementById("submitBtn");
+    const classSelect = document.getElementById("classSelect");
+    const studentSelect = document.getElementById("studentSelect");
+    const pointOptions = document.getElementById("pointOptions");
     const status = document.getElementById("status");
 
-    const activityIndex = 0; // Activity 1 = index 0
+    let teacherID = null;
 
-    async function setup() {
-      try {
-        // Fetch names
-        const namesRes = await fetch("names.json");
-        const names = await namesRes.json();
-
-        // Fetch data from Firebase
-        const snapshot = await get(ref(db, "arrays/house_points"));
-        if (!snapshot.exists()) {
-          status.innerText = "No array found in Firebase.";
-          return;
-        }
-
-        const data = snapshot.val();
-        const numPeople = Math.floor(data.length / 4);
-
-        // Clear and populate dropdown
-        personSelect.innerHTML = ""; // remove "Loading..." option
-        for (let i = 0; i < numPeople; i++) {
-          const option = document.createElement("option");
-          option.value = i;
-          option.textContent = names[i] || `Person ${i + 1}`;
-          personSelect.appendChild(option);
-        }
-        
-        submitBtn.onclick = async () => {
-          const personIndex = parseInt(personSelect.value);
-          const cit = parseInt(citvalue.value);
-          const ind = parseInt(indvalue.value);
-          const position = personIndex * 4 + activityIndex;
-          add_points(personIndex,cit, ind, 2);
-          
-        };
-      } catch (error) {
-        status.textContent = "Error loading: " + error;
-      }
-    }
-
-    setup();
-
-    const sampleArray = [10, 20, 30, 40, 50];
-    const saveBtn = document.getElementById('saveBtn');
-    
-    saveBtn.onclick = () => {
-      set(ref(db, "students/0/ind"), sampleArray)
-      set(ref(db, "students/0/cit"), sampleArray)
-    }
     onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const teacheryesno = await get(ref(db, `teachers/${user.uid}`));
-
-      if (!teacheryesno.exists()) {
-        alert("Access denied. This page is for teachers only.");
-        window.location.href = "home.html";
-      } else {
-        
-      }
-      } else {
+      if (!user) {
         window.location.href = "login.html";
+        return;
+      }
+      const teacherSnap = await get(ref(db, `teachers/${user.uid}/id`));
+      teacherID = teacherSnap.exists() ? teacherSnap.val() : null;
+      if (!teacherID) {
+        status.textContent = "Error: You must be a teacher to give points.";
       }
     });
 
+    async function loadClasses() {
+      const snapshot = await get(ref(db, 'classes'));
+      if (snapshot.exists()) {
+        const classes = snapshot.val();
+        for (let className in classes) {
+          const option = document.createElement("option");
+          option.value = className;
+          option.textContent = className;
+          classSelect.appendChild(option);
+        }
+      }
+    }
+
+    classSelect.addEventListener("change", async () => {
+      studentSelect.innerHTML = "";
+      studentSelect.style.display = "none";
+      pointOptions.style.display = "none";
+
+      const selectedClass = classSelect.value;
+      const studentSnap = await get(ref(db, 'students'));
+      if (studentSnap.exists()) {
+        const allStudents = studentSnap.val();
+        for (let uid in allStudents) {
+          const student = allStudents[uid];
+          if (student.class === selectedClass) {
+            const option = document.createElement("option");
+            option.value = uid;
+            option.textContent = student.name || uid;
+            studentSelect.appendChild(option);
+          }
+        }
+        if (studentSelect.options.length > 0) {
+          studentSelect.style.display = "block";
+          document.querySelector("label[for='studentSelect']").style.display = "block";
+        }
+      }
+    });
+
+    studentSelect.addEventListener("change", () => {
+      pointOptions.style.display = "block";
+    });
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const uid = studentSelect.value;
+      if (!uid || !teacherID) return;
+
+      const indVal = document.querySelector("input[name='indPoints']:checked")?.value;
+      const citVal = document.querySelector("input[name='citPoints']:checked")?.value;
+
+      const updates = {};
+
+      const appendPoints = async (path, amount) => {
+        const snap = await get(ref(db, `${path}`));
+        const existing = snap.exists() ? snap.val() : [];
+        const updated = existing.concat(Array(parseInt(amount)).fill(teacherID));
+        updates[path] = updated;
+      };
+
+      if (indVal) await appendPoints(`students/${uid}/ind`, indVal);
+      if (citVal) await appendPoints(`students/${uid}/cit`, citVal);
+
+      await update(ref(db), updates);
+      status.textContent = "Points successfully added!";
+    });
+
+    loadClasses();
   </script>
 </body>
 </html>
