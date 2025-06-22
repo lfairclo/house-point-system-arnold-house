@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My House Points</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      padding: 2rem;
+    }
+    .points {
+      margin-top: 2rem;
+      text-align: left;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    h2 {
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 0.5rem;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    li {
+      margin: 0.25rem 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>My House Points</h1>
+  <p id="welcomeText">Loading...</p>
+
+  <div class="points" id="pointsSection" style="display:none;">
+    <p><strong>Name:</strong> <span id="studentName">-</span></p>
+    <p><strong>Total Industry Points:</strong> <span id="indPoints">-</span></p>
+    <p><strong>Total Citizenship Points:</strong> <span id="citPoints">-</span></p>
+
+    <div id="breakdownSection">
+      <h2>Industry Points by Teacher</h2>
+      <ul id="indBreakdown"></ul>
+
+      <h2>Citizenship Points by Teacher</h2>
+      <ul id="citBreakdown"></ul>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
+      authDomain: "house-point-system-lfairclo.firebaseapp.com",
+      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "house-point-system-lfairclo",
+      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
+      messagingSenderId: "941089391114",
+      appId: "1:941089391114:web:028c06d8789846c72195f3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const welcomeText = document.getElementById("welcomeText");
+    const nameEl = document.getElementById("studentName");
+    const indEl = document.getElementById("indPoints");
+    const citEl = document.getElementById("citPoints");
+    const indList = document.getElementById("indBreakdown");
+    const citList = document.getElementById("citBreakdown");
+    const pointsSection = document.getElementById("pointsSection");
+
+    const appCheck = initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
+      isTokenAutoRefreshEnabled: true
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const uid = user.uid;
+
+      try {
+        // Load all teacher IDs and names
+        const teacherSnap = await get(ref(db, "teachers"));
+        const teacherMap = {};
+        if (teacherSnap.exists()) {
+          const allTeachers = teacherSnap.val();
+          for (const tUID in allTeachers) {
+            const tid = allTeachers[tUID]?.id;
+            const tname = allTeachers[tUID]?.name || "Unnamed";
+            if (tid != null) teacherMap[tid] = tname;
+          }
+        }
+
+        // Load student data
+        const studentSnap = await get(ref(db, `students/${uid}`));
+        if (!studentSnap.exists()) {
+          welcomeText.textContent = "Profile not found.";
+          return;
+        }
+
+        const student = studentSnap.val();
+        const name = student.name || user.email || "Unnamed";
+        const indArr = Array.isArray(student.ind) ? student.ind : [];
+        const citArr = Array.isArray(student.cit) ? student.cit : [];
+
+        // Display totals
+        nameEl.textContent = name;
+        indEl.textContent = indArr.length;
+        citEl.textContent = citArr.length;
+        welcomeText.textContent = `Welcome, ${name}`;
+        pointsSection.style.display = "block";
+
+        // Count how many points each teacher gave
+        const countBy = (arr) => {
+          const counts = {};
+          arr.forEach(id => {
+            if (!counts[id]) counts[id] = 0;
+            counts[id]++;
+          });
+          return counts;
+        };
+
+        const indCounts = countBy(indArr);
+        const citCounts = countBy(citArr);
+
+        const renderList = (counts, ul) => {
+          const sorted = Object.entries(counts)
+            .sort((a, b) => (teacherMap[a[0]] || "").localeCompare(teacherMap[b[0]] || ""));
+          ul.innerHTML = sorted.map(([id, count]) => {
+            const teacher = teacherMap[id] || `ID ${id}`;
+            return `<li>${teacher}: ${count}</li>`;
+          }).join("");
+        };
+
+        renderList(indCounts, indList);
+        renderList(citCounts, citList);
+
+      } catch (error) {
+        welcomeText.textContent = "Error loading profile.";
+        console.error("Error:", error);
+      }
+    });
+  </script>
+</body>
+</html>
