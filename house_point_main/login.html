@@ -81,7 +81,10 @@
 
   // ✅ Optional logout button
   document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth);
+    signOut(auth).then(() => {
+      console.log("User signed out");
+      window.location.href = "login.html";
+    });
   };
 </script>
 </body>
