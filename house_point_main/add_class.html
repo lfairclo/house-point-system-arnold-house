@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Make new class</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    label, select, button {
+      display: block;
+      margin: 1rem 0;
+    }
+    .points-section label {
+      display: inline-block;
+      margin-right: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>New Class</h1>
+
+  <label for="classSelect">Select Class:</label>
+  <input id="class" type="text">
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
+      authDomain: "house-point-system-lfairclo.firebaseapp.com",
+      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "house-point-system-lfairclo",
+      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
+      messagingSenderId: "941089391114",
+      appId: "1:941089391114:web:028c06d8789846c72195f3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    const classnew = document.getElementById("class");
+    newclass = classnew.value;
+    await appendPoints(`class/`, newclass);
+
+    
+  </script>
+</body>
+</html>
