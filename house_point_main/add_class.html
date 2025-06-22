@@ -25,6 +25,7 @@
 
   <label for="classSelect">Select Class:</label>
   <input id="class" type="text">
+  <button id="subMT">submit<button>
   
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -47,8 +48,11 @@
 
     const classnew = document.getElementById("class");
     newclass = classnew.value;
-    await appendPoints(`class/`, newclass);
-
+    document.getElementById("subMT").onclick = () => {
+      signOut(auth).then(() => {
+        await appendPoints(`class/`, newclass);
+      });
+    };
     
   </script>
 </body>
