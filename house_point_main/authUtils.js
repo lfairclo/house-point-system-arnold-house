@@ -4,6 +4,16 @@ import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
+  authDomain: "house-point-system-lfairclo.firebaseapp.com",
+  databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
+  projectId: "house-point-system-lfairclo",
+  storageBucket: "house-point-system-lfairclo.firebasestorage.app",
+  messagingSenderId: "941089391114",
+  appId: "1:941089391114:web:028c06d8789846c72195f3"
+};
+
 const app = initializeApp(firebaseConfig);
 
 const appCheck = initializeAppCheck(app, {
