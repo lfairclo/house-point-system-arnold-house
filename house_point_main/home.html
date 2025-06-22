@@ -49,10 +49,11 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import {getDatabase,ref,get} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
+    // ✅ Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
       authDomain: "house-point-system-lfairclo.firebaseapp.com",
@@ -71,28 +72,35 @@
     const teacherActions = document.getElementById("teacherActions");
     const studentActions = document.getElementById("studentActions");
 
-     // ✅ THEN initialize App Check
+    // ✅ Initialize App Check
     const appCheck = initializeAppCheck(app, {
       provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
       isTokenAutoRefreshEnabled: true
     });
-    
+
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href = "login.html"; // redirect if not signed in
+        window.location.href = "login.html";
         return;
       }
 
       const uid = user.uid;
-      const roleSnap = await get(ref(db, `users/${uid}/role`));
-      const role = roleSnap.exists() ? roleSnap.val() : "student";
 
-      welcomeText.textContent = `Welcome, ${user.email} (${role})`;
+      // Check both possible roles
+      const [isTeacherSnap, isStudentSnap] = await Promise.all([
+        get(ref(db, `teachers/${uid}`)),
+        get(ref(db, `students/${uid}`))
+      ]);
 
-      if (role === "teacher") {
+      if (isTeacherSnap.exists()) {
+        welcomeText.textContent = `Welcome, ${user.email} (Teacher)`;
         teacherActions.style.display = "block";
-      } else if (role === "student") {
+      } else if (isStudentSnap.exists()) {
+        welcomeText.textContent = `Welcome, ${user.email} (Student)`;
         studentActions.style.display = "block";
+      } else {
+        welcomeText.textContent = `Welcome, ${user.email} (Unknown Role)`;
+        alert("Your account role couldn't be determined. Please contact admin.");
       }
     });
   </script>
