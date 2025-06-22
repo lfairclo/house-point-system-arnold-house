@@ -47,7 +47,7 @@
     const auth = getAuth(app);
 
     const classnew = document.getElementById("class");
-    newclass = classnew.value;
+    const newclass = classnew.value;
     document.getElementById("subMT").onclick = () => {
       signOut(auth).then(() => {
         set(ref(db, `class/${newclass}`),newclass);
