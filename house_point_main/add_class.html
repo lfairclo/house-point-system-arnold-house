@@ -55,7 +55,8 @@
     const classnew = document.getElementById("class");
     const newclass = classnew.value;
     document.getElementById("subMT").onclick = () => {
-      set(ref(db, `class/${newclass}`),newclass);
+      const classRef = ref(db, "classes");
+      await push(classRef, newclass);
     };
     
   </script>
