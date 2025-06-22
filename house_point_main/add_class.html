@@ -49,9 +49,7 @@
     const classnew = document.getElementById("class");
     const newclass = classnew.value;
     document.getElementById("subMT").onclick = () => {
-      signOut(auth).then(() => {
-        set(ref(db, `class/${newclass}`),newclass);
-      });
+      set(ref(db, `class/${newclass}`),newclass);
     };
     
   </script>
