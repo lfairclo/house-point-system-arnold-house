@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      background-color: #000000;
+      color: #0e6b0e;
+      font-family: monospace;
+      padding: 40px;
+      font-size: 18px;
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+
+    #terminal {
+      display: inline;
+      white-space: pre-wrap;
+      /* Fix the weird indentation by removing any leading spaces in initial strings */
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background-color: #0e6b0e;
+      animation: blink 0.7s steps(1) infinite;
+      vertical-align: bottom; /* Adjust this to move cursor up/down */
+      margin-left: 2px; /* Small gap between text and cursor */
+    }
+
+    /* To adjust cursor vertical position, modify vertical-align or use margin-top */
+    /* For example, try: vertical-align: middle; or margin-top: -3px; */
+
+    @keyframes blink {
+      0%, 50%, 100% { opacity: 1; }
+      25%, 75% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <pre id="terminal"></pre><div class="cursor" id="cursor"></div>
+
+  <script>
+    const terminal = document.getElementById('terminal');
+    const cursor = document.getElementById('cursor');
+
+    // Manual typing lines (fixed first line without weird indentation)
+    const manualLines = [
+      "#include <cringe_photos_of_Y8>;\n",
+      "#include <embarrassing_stories_725>;\n",
+      "#include <stupid_comments>;\n",
+      "\n",
+      "sudo apt install -n Y8\n"
+    ];
+
+    const afterManual = [
+      "\nRun creatvid2025();"
+    ];
+
+    const confirmPrompt = [
+      "Are You sure?",
+      "Y/N"
+    ];
+
+    const stagedTasks = [
+      "Asking Chat PT",
+      "Playing run 3",
+      "Kicking balls over the fence",
+      "Messing around in the common room",
+      "Brexiting",
+      "Messing round",
+      "Forgetting homework at home"
+    ];
+
+    let manualIndex = 0;
+    let charIndex = 0;
+    let currentText = "";
+    let manualTyping = true;
+
+    // To hold the current user input after Y/N prompt (showing 'Y' when pressed)
+    let ynInput = "";
+
+    function updateTerminal() {
+      terminal.textContent = currentText + ynInput;
+      // cursor is inline next to terminal so no extra positioning needed
+    }
+
+    function handleManualTyping() {
+      if (!manualTyping) return;
+
+      const currentLine = manualLines[manualIndex];
+      if (charIndex < currentLine.length) {
+        currentText += currentLine[charIndex++];
+        updateTerminal();
+      } else {
+        manualIndex++;
+        charIndex = 0;
+        if (manualIndex >= manualLines.length) {
+          manualTyping = false;
+          runAfterManual();
+        }
+      }
+    }
+
+    function typeLine(line, callback) {
+      let i = 0;
+      const interval = setInterval(() => {
+        currentText += line[i++];
+        updateTerminal();
+        if (i >= line.length) {
+          clearInterval(interval);
+          currentText += "\n";
+          updateTerminal();
+          setTimeout(callback, 300);
+        }
+      }, 30);
+    }
+
+    function typeLinesSequentially(lines, done) {
+      if (lines.length === 0) return done();
+      typeLine(lines.shift(), () => typeLinesSequentially(lines, done));
+    }
+
+    function waitForKeyPress(callback) {
+      function handler(e) {
+        e.preventDefault();
+        document.removeEventListener("keydown", handler);
+        callback(e);
+      }
+      document.addEventListener("keydown", handler);
+    }
+
+    function animateDotsThenComplete(text, callback) {
+      let dotCount = 0;
+      const maxDots = 3;
+      const interval = setInterval(() => {
+        terminal.textContent = currentText + text + ".".repeat(dotCount);
+        dotCount++;
+        if (dotCount > maxDots) {
+          clearInterval(interval);
+          const completeLine = text + " [COMPLETED]\n";
+          currentText += completeLine;
+          updateTerminal();
+          setTimeout(callback, 400);
+        }
+      }, 400);
+    }
+
+    function animateProcessing(callback) {
+      let dotCount = 0;
+      const maxDots = 3;
+      let loops = 0;
+      const maxLoops = 4;
+
+      const interval = setInterval(() => {
+        terminal.textContent = currentText + "Processing" + ".".repeat(dotCount);
+        dotCount = (dotCount + 1) % (maxDots + 1);
+        if (dotCount === 0) loops++;
+        if (loops >= maxLoops) {
+          clearInterval(interval);
+          currentText += "Processing...[COMPLETED]\n";
+          updateTerminal();
+          callback();
+        }
+      }, 500);
+    }
+
+    // Animate typing of "Video Exported to Gdrive"
+    function typeFinalLine(line, callback) {
+      let i = 0;
+      const interval = setInterval(() => {
+        currentText += line[i++];
+        updateTerminal();
+        if (i >= line.length) {
+          clearInterval(interval);
+          currentText += "\n";
+          updateTerminal();
+          setTimeout(callback, 300);
+        }
+      }, 30);
+    }
+
+    function animateNextStage(i) {
+      if (i >= stagedTasks.length) {
+        currentText += "\n";
+        updateTerminal();
+        animateProcessing(() => {
+          typeFinalLine("Video Exported to Gdrive", () => {
+            cursor.style.display = "none";
+          });
+        });
+        return;
+      }
+      animateDotsThenComplete(stagedTasks[i], () => animateNextStage(i + 1));
+    }
+
+    function runAfterManual() {
+      typeLinesSequentially([...afterManual], () => {
+        waitForKeyPress(() => {
+          typeLinesSequentially([...confirmPrompt], () => {
+            // Simplify: show 'Y' after Y/N prompt on any keypress
+            ynInput = "";
+            updateTerminal();
+
+            function handleAnyKey(e) {
+              e.preventDefault();
+              ynInput = "Y";
+              updateTerminal();
+              document.removeEventListener('keydown', handleAnyKey);
+              currentText += "\nProceding...\n";
+              ynInput = "";
+              updateTerminal();
+              animateNextStage(0);
+            }
+
+            document.addEventListener('keydown', handleAnyKey);
+          });
+        });
+      });
+    }
+
+    document.addEventListener("keydown", () => {
+      if (manualTyping) {
+        handleManualTyping();
+      }
+    });
+
+    updateTerminal();
+  </script>
+</body>
+</html>
