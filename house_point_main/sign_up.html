@@ -147,6 +147,7 @@
 
           window.location.replace("https://lfairclo.github.io/house-point-system-arnold-house/house_point_main/home.html");
         }else{
+          classSelect = document.getElementById("classSelect").value
           await set(ref(db, `students/${userId}`), {email:email, name:name, class:classSelect});
           window.location.replace("https://lfairclo.github.io/house-point-system-arnold-house/house_point_main/home.html");
         }
