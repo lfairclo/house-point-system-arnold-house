@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Make new class</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    label, select, button {
+      display: block;
+      margin: 1rem 0;
+    }
+    .points-section label {
+      display: inline-block;
+      margin-right: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>New Class</h1>
+
+  <label for="classSelect">Select House:</label>
+  <input id="classinp" type="text">
+  <button id="subMT">submit<button>
+  
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, push, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
+    
+    //6767 - Thanks Gabriel :/
+    const firebaseConfig = {
+      apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
+      authDomain: "house-point-system-lfairclo.firebaseapp.com",
+      databaseURL: "https://house-point-system-lfairclo-default-rtdb.europe-west1.firebasedatabase.app/",
+      projectId: "house-point-system-lfairclo",
+      storageBucket: "house-point-system-lfairclo.firebasestorage.app",
+      messagingSenderId: "941089391114",
+      appId: "1:941089391114:web:028c06d8789846c72195f3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+    
+    const appCheck = initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
+      isTokenAutoRefreshEnabled: true
+    });
+
+    
+    // const newclass = document.getElementById('classinp').value.value;
+    document.getElementById("subMT").onclick = async () => {
+      const newclass = document.getElementById('classinp').value.trim();
+    
+      if (!newclass) {
+        alert("Please enter a class name");
+        return;
+      }
+    
+      const classRef = ref(db, "houses");
+      await push(classRef, newclass);
+    
+      alert("Class added successfully");
+      document.getElementById('classinp').value = "";
+    };
+
+    
+  </script>
+</body>
+</html>
