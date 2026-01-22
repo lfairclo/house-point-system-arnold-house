@@ -24,7 +24,7 @@
   <h1>New Class</h1>
 
   <label for="classSelect">Select Class:</label>
-  <input id="class" type="text">
+  <input id="classinp" type="text">
   <button id="subMT">submit<button>
   
   <script type="module">
@@ -53,7 +53,7 @@
     });
 
     
-    const newclass = document.getElementById('textbox_id').value.value;
+    const newclass = document.getElementById('classinp').value.value;
     document.getElementById("subMT").onclick = () => {
       const classRef = ref(db, "classes");
       push(classRef, {newclass:newclass});
