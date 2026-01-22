@@ -58,7 +58,7 @@
     const teacherCodeWrap = document.getElementById("teacherCodeWrap");
     const signUpBtn = document.getElementById("signUpBtn");
     const status = document.getElementById("status");
-    loadClasses(); // only load classes if student
+    
 
     
     // ✅ THEN initialize App Check
@@ -67,7 +67,7 @@
       isTokenAutoRefreshEnabled: true
     });
     // Show/hide teacher code field
-    
+    loadClasses(); // only load classes if student
     // Load classes from Firebase
     async function loadClasses() {
       const classRef = ref(db, 'classes');
