@@ -3,23 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <title>Give House Points</title>
+
   <style>
     body {
       font-family: sans-serif;
       padding: 2rem;
-      max-width: 600px;
+      max-width: 900px;
       margin: auto;
     }
+
     label, select, button {
-      display: block;
-      margin: 1rem 0;
+      margin: 0.5rem 0;
     }
-    .points-section label {
-      display: inline-block;
-      margin-right: 1rem;
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.6rem;
+      text-align: center;
+    }
+
+    .point-btn {
+      padding: 0.3rem 0.7rem;
+      margin: 0 0.15rem;
+      border: 1px solid #888;
+      background: #eee;
+      cursor: pointer;
+    }
+
+    .point-btn.selected {
+      background: #4caf50;
+      color: white;
+      font-weight: bold;
+    }
+
+    .bulk-controls {
+      margin-top: 1rem;
+    }
+
+    .bulk-controls button {
+      margin-right: 0.5rem;
+    }
+
+    #submitBtn {
+      margin-top: 1.5rem;
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
     }
   </style>
 </head>
+
 <body>
   <h1>Give House Points</h1>
 
@@ -28,28 +66,40 @@
     <option selected disabled>Select a class...</option>
   </select>
 
-  <label for="studentSelect" style="display:none;">Select Student:</label>
-  <select id="studentSelect" style="display:none;"></select>
+  <div id="pointsTableWrap" style="display:none;">
+    <div class="bulk-controls">
+      <h3>Industry – set everyone</h3>
+      <button onclick="setAll('ind',0)">Everyone +0</button>
+      <button onclick="setAll('ind',1)">Everyone +1</button>
+      <button onclick="setAll('ind',2)">Everyone +2</button>
+    </div>
 
-  <div class="points-section" id="pointOptions" style="display:none;">
-    <h3>Industry Points</h3>
-    <label><input type="radio" name="indPoints" value="1"> +1</label>
-    <label><input type="radio" name="indPoints" value="2"> +2</label>
-    <label><input type="radio" name="indPoints" value="3"> +3</label>
+    <div class="bulk-controls">
+      <h3>Citizenship – set everyone</h3>
+      <button onclick="setAll('cit',0)">Everyone +0</button>
+      <button onclick="setAll('cit',1)">Everyone +1</button>
+      <button onclick="setAll('cit',2)">Everyone +2</button>
+    </div>
 
-    <h3>Citizenship Points</h3>
-    <label><input type="radio" name="citPoints" value="1"> +1</label>
-    <label><input type="radio" name="citPoints" value="2"> +2</label>
-    <label><input type="radio" name="citPoints" value="3"> +3</label>
+    <table id="pointsTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Industry</th>
+          <th>Citizenship</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
 
-    <button id="submitBtn">Submit</button>
+    <button id="submitBtn">Submit Points</button>
   </div>
 
   <p id="status"></p>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
 
@@ -67,96 +117,130 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
-    const appCheck = initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
-        isTokenAutoRefreshEnabled: true
-      });
-    
+    initializeAppCheck(app, {
+      provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
+      isTokenAutoRefreshEnabled: true
+    });
+
     const classSelect = document.getElementById("classSelect");
-    const studentSelect = document.getElementById("studentSelect");
-    const pointOptions = document.getElementById("pointOptions");
+    const tableBody = document.querySelector("#pointsTable tbody");
+    const tableWrap = document.getElementById("pointsTableWrap");
     const status = document.getElementById("status");
 
     let teacherID = null;
+    let studentData = {}; // uid -> { ind, cit }
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "login.html";
         return;
       }
-      const teacherSnap = await get(ref(db, `teachers/${user.uid}/id`));
-      teacherID = teacherSnap.exists() ? teacherSnap.val() : null;
+
+      const snap = await get(ref(db, `teachers/${user.uid}/id`));
+      teacherID = snap.exists() ? snap.val() : null;
+
       if (!teacherID) {
-        status.textContent = "Error: You must be a teacher to give points.";
-        alert("Only teachers may access this web page");
-        window.location.replace("https://lfairclo.github.io/house-point-system-arnold-house/house_point_main/home.html");
+        alert("Only teachers may access this page");
+        window.location.replace("home.html");
       }
     });
 
     async function loadClasses() {
-      const snapshot = await get(ref(db, 'classes'));
-      if (snapshot.exists()) {
-        const classes = snapshot.val();
-        for (let className in classes) {
-          const option = document.createElement("option");
-          option.value = className;
-          option.textContent = className;
-          classSelect.appendChild(option);
-        }
+      const snap = await get(ref(db, "classes"));
+      if (!snap.exists()) return;
+
+      const classes = snap.val();
+      for (let name in classes) {
+        const opt = document.createElement("option");
+        opt.value = name;
+        opt.textContent = name;
+        classSelect.appendChild(opt);
       }
     }
 
     classSelect.addEventListener("change", async () => {
-      studentSelect.innerHTML = "";
-      studentSelect.style.display = "none";
-      pointOptions.style.display = "none";
+      tableBody.innerHTML = "";
+      studentData = {};
+      tableWrap.style.display = "none";
 
       const selectedClass = classSelect.value;
-      const studentSnap = await get(ref(db, 'students'));
-      if (studentSnap.exists()) {
-        const allStudents = studentSnap.val();
-        for (let uid in allStudents) {
-          const student = allStudents[uid];
-          if (student.class === selectedClass) {
-            const option = document.createElement("option");
-            option.value = uid;
-            option.textContent = student.name || uid;
-            studentSelect.appendChild(option);
-          }
-        }
-        if (studentSelect.options.length > 0) {
-          studentSelect.style.display = "block";
-          document.querySelector("label[for='studentSelect']").style.display = "block";
-        }
+      const snap = await get(ref(db, "students"));
+      if (!snap.exists()) return;
+
+      const students = snap.val();
+
+      for (let uid in students) {
+        const s = students[uid];
+        if (s.class !== selectedClass) continue;
+
+        studentData[uid] = { ind: 0, cit: 0 };
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${s.name || "Unnamed"}</td>
+          <td>${makeButtons(uid, "ind")}</td>
+          <td>${makeButtons(uid, "cit")}</td>
+        `;
+        tableBody.appendChild(row);
+      }
+
+      if (tableBody.children.length > 0) {
+        tableWrap.style.display = "block";
       }
     });
 
-    studentSelect.addEventListener("change", () => {
-      pointOptions.style.display = "block";
-    });
+    function makeButtons(uid, type) {
+      return [0,1,2].map(v =>
+        `<button class="point-btn ${v===0?'selected':''}"
+          onclick="setPoint('${uid}','${type}',${v},this)">+${v}</button>`
+      ).join("");
+    }
 
-    document.getElementById("submitBtn").addEventListener("click", async () => {
-      const uid = studentSelect.value;
-      if (!uid || !teacherID) return;
+    window.setPoint = (uid, type, val, btn) => {
+      studentData[uid][type] = val;
+      btn.parentElement.querySelectorAll(".point-btn")
+        .forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+    };
 
-      const indVal = document.querySelector("input[name='indPoints']:checked")?.value;
-      const citVal = document.querySelector("input[name='citPoints']:checked")?.value;
+    window.setAll = (type, val) => {
+      for (let uid in studentData) {
+        studentData[uid][type] = val;
+      }
+
+      document.querySelectorAll(
+        `td:nth-child(${type==="ind"?2:3})`
+      ).forEach(cell => {
+        cell.querySelectorAll(".point-btn").forEach(btn => {
+          btn.classList.toggle("selected", btn.textContent === `+${val}`);
+        });
+      });
+    };
+
+    document.getElementById("submitBtn").onclick = async () => {
+      if (!teacherID) return;
 
       const updates = {};
 
-      const appendPoints = async (path, amount) => {
-        const snap = await get(ref(db, `${path}`));
-        const existing = snap.exists() ? snap.val() : [];
-        const updated = existing.concat(Array(parseInt(amount)).fill(teacherID));
-        updates[path] = updated;
-      };
+      for (let uid in studentData) {
+        const { ind, cit } = studentData[uid];
 
-      if (indVal) await appendPoints(`students/${uid}/ind`, indVal);
-      if (citVal) await appendPoints(`students/${uid}/cit`, citVal);
+        if (ind > 0) {
+          const snap = await get(ref(db, `students/${uid}/ind`));
+          const arr = snap.exists() ? snap.val() : [];
+          updates[`students/${uid}/ind`] = arr.concat(Array(ind).fill(teacherID));
+        }
+
+        if (cit > 0) {
+          const snap = await get(ref(db, `students/${uid}/cit`));
+          const arr = snap.exists() ? snap.val() : [];
+          updates[`students/${uid}/cit`] = arr.concat(Array(cit).fill(teacherID));
+        }
+      }
 
       await update(ref(db), updates);
       status.textContent = "Points successfully added!";
-    });
+    };
 
     loadClasses();
   </script>
