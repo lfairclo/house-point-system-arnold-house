@@ -32,7 +32,7 @@
     import { getDatabase, push, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app-check.js";
-
+    //6767 - Thanks Gabriel :/
     const firebaseConfig = {
       apiKey: "AIzaSyBJfBxrgo6rg8uXL9PIgY6ebL3gFGS3TI8",
       authDomain: "house-point-system-lfairclo.firebaseapp.com",
@@ -53,11 +53,22 @@
     });
 
     
-    const newclass = document.getElementById('classinp').value.value;
-    document.getElementById("subMT").onclick = () => {
+    // const newclass = document.getElementById('classinp').value.value;
+    document.getElementById("subMT").onclick = async () => {
+      const newclass = document.getElementById('classinp').value.trim();
+    
+      if (!newclass) {
+        alert("Please enter a class name");
+        return;
+      }
+    
       const classRef = ref(db, "classes");
-      push(classRef, {newclass:newclass});
+      await push(classRef, newclass);
+    
+      alert("Class added successfully");
+      document.getElementById('classinp').value = "";
     };
+
     
   </script>
 </body>
