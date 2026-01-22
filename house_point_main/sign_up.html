@@ -58,7 +58,9 @@
     const teacherCodeWrap = document.getElementById("teacherCodeWrap");
     const signUpBtn = document.getElementById("signUpBtn");
     const status = document.getElementById("status");
+    loadClasses(); // only load classes if student
 
+    
     // ✅ THEN initialize App Check
     const appCheck = initializeAppCheck(app, {
       provider: new ReCaptchaV3Provider('6LfJBmgrAAAAAOXs8gR2yQf6Hw34cmAkY_gBizP0'),
@@ -91,7 +93,6 @@
       const isT = isTeacher.checked;
       teacherCodeWrap.style.display = isT ? "block" : "none";
       studentClassWrap.style.display = isT ? "none" : "block";
-      if (!isT) loadClasses(); // only load classes if student
     };
 
 
