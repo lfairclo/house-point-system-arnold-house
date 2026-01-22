@@ -87,7 +87,7 @@
         }
     
         const role = await getUserRole(user.uid, db);
-        welcomeText.textContent = `Welcome, ${user.email} (${role})`;
+        welcomeText.textContent = `Welcome, ${user.name} (${role})`;
     
         if (role === "teacher") {
           teacherActions.style.display = "block";
