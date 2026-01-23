@@ -87,6 +87,7 @@
         }
     
         const role = await getUserRole(user.uid, db);
+        const name = await getUserName(user.uid, db);
         welcomeText.textContent = `Welcome, ${user.name} (${role})`;
     
         if (role === "teacher") {
