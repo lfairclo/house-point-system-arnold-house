@@ -30,6 +30,17 @@
       <option disabled selected>Loading classes...</option>
     </select>
   </div>
+  <div id="studentHouseWrap">
+  <label for="houseSelect">Select Your House:</label>
+  <select id="houseSelect">
+    <option disabled selected>Select a house...</option>
+    <option value="arnold">Arnold</option>
+    <option value="bradford">Bradford</option>
+    <option value="clifton">Clifton</option>
+    <option value="howard">Howard</option>
+  </select>
+</div>
+
 
   <button id="signUpBtn">Sign Up</button>
   <p id="status"></p>
@@ -87,13 +98,16 @@
         classSelect.innerHTML = '<option disabled>No classes found</option>';
       }
     }
+    const studentClassWrap = document.getElementById("studentClassWrap");
+    const studentHouseWrap = document.getElementById("studentHouseWrap");
     
-    // Show/hide teacher code or class dropdown
     isTeacher.onchange = () => {
       const isT = isTeacher.checked;
       teacherCodeWrap.style.display = isT ? "block" : "none";
       studentClassWrap.style.display = isT ? "none" : "block";
+      studentHouseWrap.style.display = isT ? "none" : "block";
     };
+    
 
 
     signUpBtn.onclick = async () => {
@@ -147,13 +161,31 @@
         });
 
           window.location.replace("https://lfairclo.github.io/house-point-system-arnold-house/house_point_main/home.html");
-        }else{
-          
-          const classchoice = document.getElementById("classSelect").value
-          
-          await set(ref(db, `students/${userId}`), {email:email, name:name, class:classchoice});
-          window.location.replace("https://lfairclo.github.io/house-point-system-arnold-house/house_point_main/home.html");
+        }} else {
+          const classchoice = document.getElementById("classSelect").value;
+          const houseChoice = document.getElementById("houseSelect").value;
+        
+          if (!classchoice || !houseChoice) {
+            status.textContent = "Please select both a class and a house.";
+            return;
+          }
+        
+          // Save student profile
+          await set(ref(db, `students/${userId}`), {
+            email: email,
+            name: name,
+            class: classchoice,
+            house: houseChoice
+          });
+        
+          // Add student UID to house directory
+          await set(ref(db, `houses/${houseChoice}/${userId}`), true);
+        
+          window.location.replace(
+            "https://lfairclo.github.io/house-point-system-arnold-house/house_point_main/home.html"
+          );
         }
+
 
         status.textContent = `Account created successfully as a ${role}.`;
       } catch (error) {
