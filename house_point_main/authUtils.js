@@ -44,7 +44,7 @@ export async function getUserName(uid, db) {
     get(ref(db, `students/${uid}/name`))
   ]);
 
-  if (teacherSnap.exists()) return teacherSnap.val();
-  if (studentSnap.exists()) return studentSnap.val();
+  if (teacherSnap.exists()) return teacherSnap.val(); //deploy
+  if (studentSnap.exists()) return studentSnap.val(); //deploy
   return "unknown";
 }
