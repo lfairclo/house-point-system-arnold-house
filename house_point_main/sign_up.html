@@ -30,17 +30,13 @@
       <option disabled selected>Loading classes...</option>
     </select>
   </div>
-  <div id="studentHouseWrap">
-  <label for="houseSelect">Select Your House:</label>
-  <select id="houseSelect">
-    <option disabled selected>Select a house...</option>
-    <option value="arnold">Arnold</option>
-    <option value="bradford">Bradford</option>
-    <option value="clifton">Clifton</option>
-    <option value="howard">Howard</option>
-  </select>
-</div>
 
+  <div id="studentHouseWrap">
+    <label for="houseSelect">Select Your Class:</label>
+    <select id="houseSelect">
+      <option disabled selected>Select a house...</option>
+    </select>
+  </div>
 
   <button id="signUpBtn">Sign Up</button>
   <p id="status"></p>
@@ -78,7 +74,9 @@
       isTokenAutoRefreshEnabled: true
     });
     // Show/hide teacher code field
-    loadClasses(); // only load classes if student
+    loadClasses();// only load classes if student
+    loadHouses();//load houses
+    
     // Load classes from Firebase
     async function loadClasses() {
       const classRef = ref(db, 'classes');
@@ -98,6 +96,29 @@
         classSelect.innerHTML = '<option disabled>No classes found</option>';
       }
     }
+    
+    async function loadHouses() {
+          const houseRef = ref(db, 'classes');
+          const snap = await get(houseRef);
+          const houseSelect = document.getElementById("houseSelect");
+        
+          if (snap.exists()) {
+            const data = snap.val();
+            houseSelect.innerHTML = '<option disabled selected>Select a class...</option>';
+            Object.keys(data).forEach(houseName => {
+              const opt = document.createElement("houseoption");
+              opt.value = houseName;
+              opt.textContent = houseName;
+              houseSelect.appendChild(opt);
+            });
+          } else {
+            houseSelect.innerHTML = '<option disabled>No classes found</option>';
+          }
+        }
+
+
+
+    
     const studentClassWrap = document.getElementById("studentClassWrap");
     const studentHouseWrap = document.getElementById("studentHouseWrap");
     
