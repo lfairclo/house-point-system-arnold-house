@@ -36,7 +36,7 @@ export async function getUserRole(uid, db) {
   if (teacherSnap.exists()) return "teacher";
   if (studentSnap.exists()) return "student";
   return "unknown";
-}
+};
 
 export async function getUserName(uid, db) {
   const [teacherSnap, studentSnap] = await Promise.all([
